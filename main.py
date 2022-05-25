@@ -72,7 +72,7 @@ def wlasciciele():
             ed = Tk()
             ed.title("Edytowanie")
             ed.iconbitmap('d:/gui/car.ico')
-            ed.geometry("1000x800")
+            ed.geometry("300x300")
 
             ll = Label(ed, text="Edycja rekordu w tabeli: Właściciele", font=("Arial", 12, 'bold'))
             ll.grid(row=0, column=1, columnspan=3, sticky=W)
@@ -91,7 +91,7 @@ def wlasciciele():
 
             addmodel = Button(ed, text="Zatwierdź", padx=20, pady=10,command=lambda: update(id, b1.get(), b2.get(), b3.get()))
             addmodel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
-            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearmodel)
+            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearwl)
             clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
 
         def deleterec(id):
@@ -233,7 +233,7 @@ def sprzedawcy():
         def editrec(id):
 
             def update(id, new_imie, new_nazwisko, new_stanowisko):
-                sqlcomand = "UPDATE sprzedawca SET imie = %s, nazwisko = %s, stanowisko = %s WHERE wlascicielID = %s;"
+                sqlcomand = "UPDATE sprzedawca SET imie = %s, nazwisko = %s, stanowisko = %s WHERE sprzedawcaID = %s;"
                 val = (new_imie, new_nazwisko, new_stanowisko, id)
                 cursor.execute(sqlcomand, val)
                 db.commit()
@@ -244,7 +244,7 @@ def sprzedawcy():
             ed = Tk()
             ed.title("Edytowanie")
             ed.iconbitmap('d:/gui/car.ico')
-            ed.geometry("1000x800")
+            ed.geometry("300x250")
 
             ll = Label(ed, text="Edycja rekordu w tabeli: Sprzedawcy", font=("Arial", 12, 'bold'))
             ll.grid(row=0, column=1, columnspan=3, sticky=W)
@@ -263,7 +263,7 @@ def sprzedawcy():
 
             addmodel = Button(ed, text="Zatwierdź", padx=20, pady=10,command=lambda: update(id, b1.get(), b2.get(), b3.get()))
             addmodel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
-            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearmodel)
+            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearsp)
             clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
 
         def deleterec(id):
@@ -385,6 +385,132 @@ def samochody():
         db.commit()
         samochody()
 
+    def searchsam():
+
+        def griddy():
+            entrybox = Entry(ser)
+            entrybox.grid(row=0, column=1, padx=10, pady=10)
+
+            searchlbl = Label(ser, text="Szukaj samochodow")
+            searchlbl.grid(row=0, column=0, padx=10, pady=10)
+
+
+            dropbox = ttk.Combobox(ser, values=['Szukaj po.. ', 'VIN', 'ID Sprzedawcy','ID Właściciela', 'ID Modelu'])
+            dropbox.current(0)
+            dropbox.grid(row=0, column=2)
+
+            shbutton = Button(ser, text="szukaj",command=lambda:searchnow(entrybox.get(), dropbox.get()))
+            shbutton.grid(row=1, column =0)
+
+        def editrec(id):
+
+            def update(id, new_VIN, new_modelID, new_sprzedawcaID, new_wlascicielID):
+
+                sqlcomand = "UPDATE samochod SET VIN = %s, modelID = %s, sprzedawcaID = %s,wlascicielID = %s WHERE samochodID = %s;"
+                val = (new_VIN, new_modelID, new_sprzedawcaID, new_wlascicielID,id)
+                cursor.execute(sqlcomand, val)
+                db.commit()
+
+                ed.destroy()
+                samochody()
+
+
+
+            ed = Tk()
+            ed.title("Edytowanie")
+            ed.iconbitmap('d:/gui/car.ico')
+            ed.geometry("300x300")
+
+            ll = Label(ed, text="Edycja rekordu w tabeli: Samochody", font=("Arial", 12, 'bold'))
+            ll.grid(row=0, column=1, columnspan=3, sticky=W)
+
+            l1 = Label(ed, text="VIN", font=("Arial", 12)).grid(column=1, row=2, sticky=W, padx=5, pady=10)
+            l2 = Label(ed, text="ID modelu", font=("Arial", 12)).grid(column=1, row=3, sticky=W, padx=5, pady=10)
+            l3 = Label(ed, text="ID sprzedawcy", font=("Arial", 12)).grid(column=1, row=4, sticky=W, padx=5, pady=10)
+            l4 = Label(ed, text="ID wlasciciela", font=("Arial", 12)).grid(column=1, row=5, sticky=W, padx=5, pady=10)
+
+            b1 = Entry(ed)
+            b1.grid(column=2, row=2)
+            b2 = Entry(ed)
+            b2.grid(column=2, row=3)
+            b3 = Entry(ed)
+            b3.grid(column=2, row=4)
+            b4 = Entry(ed)
+            b4.grid(column=2, row=5)
+
+            addmodel = Button(ed, text="Zatwierdź", padx=20, pady=10, command=lambda:update(id,b1.get(),b2.get(),b3.get(),b4.get()))
+            addmodel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
+            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearsam)
+            clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
+
+        def deleterec(id):
+            sql = "DELETE FROM samochod WHERE samochodID = %s"
+            name = (id,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+            db.commit()
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+            griddy()
+            samochody()
+
+
+        def searchnow(par,selected):
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+
+            griddy()
+
+            sql = ''
+            if selected == 'VIN':
+                sql = "SELECT * FROM samochod WHERE VIN = %s"
+            if selected == 'ID Sprzedawcy':
+                sql = "SELECT * FROM samochod WHERE sprzedawcaID = %s"
+            if selected == 'ID Właściciela':
+                sql = "SELECT * FROM samochod WHERE wlascicielID = %s"
+            if selected == 'ID Modelu':
+                sql = "SELECT * FROM samochod WHERE modelID = %s"
+
+            name = (par,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+
+            if not result:
+                result = "nie znaleziono"
+                l000 = Label(ser, text=result, font=('arial', 10, "bold")).grid(column=0, row=2)
+
+            else:
+                l000 = Label(ser, text="ID", font=('arial', 10, "bold")).grid(column=2, row=2)
+                l111 = Label(ser, text="VIN", font=('arial', 10, "bold")).grid(column=3, row=2)
+                l222 = Label(ser, text="ID modelu", font=('arial', 10, "bold")).grid(column=4, row=2)
+                l333 = Label(ser, text="ID sprzedawcy", font=('arial', 10, "bold")).grid(column=5, row=2)
+                l444 = Label(ser, text="ID wlasciciela", font=('arial', 10, "bold")).grid(column=6, row=2)
+
+                for index, x in enumerate(result):
+                    position = 0
+                    index += 3
+                    id_ref = x[0]
+                    edit_button = Button(ser, text="Edytuj", command=lambda:editrec(id_ref))
+                    delete_button =Button(ser,text='Usuń', command=lambda: deleterec(id_ref))
+                    edit_button.grid(row=index, column=position)
+                    delete_button.grid(row=index, column=position+1)
+
+                    for y in x:
+                        dblabel = Label(ser, text=y)
+                        dblabel.grid(row=index, column=position+2)
+                        position += 1
+
+
+
+
+        ser = Tk()
+        ser.title("Szukaj w samochody")
+        ser.iconbitmap('d:/gui/car.ico')
+        ser.geometry("1000x800")
+        griddy()
+
     clear_frame()
     root.title("Salon samochodowy menager - Samochody")
     bck = Button(fr, text="<<", padx=20, pady=5, command=start_screen)
@@ -410,6 +536,8 @@ def samochody():
     addsamochod.grid(column=1, row=6, sticky=W, padx=5, pady=20)
     clrr = Button(fr, text="Wyczyść", padx=5, pady=10, command=clearsam)
     clrr.grid(column=2, row=6, sticky=W, padx=5, pady=20)
+    search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchsam)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
 
@@ -480,7 +608,7 @@ def modele():
             ed = Tk()
             ed.title("Edytowanie")
             ed.iconbitmap('d:/gui/car.ico')
-            ed.geometry("1000x800")
+            ed.geometry("300x300")
 
             ll = Label(ed, text="Edycja rekordu w tabeli: Modele", font=("Arial", 12, 'bold'))
             ll.grid(row=0, column=1, columnspan=3, sticky=W)
