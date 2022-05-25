@@ -42,6 +42,119 @@ def wlasciciele():
         db.commit()
         wlasciciele()
 
+    def searchwl():
+
+        def griddy():
+            entrybox = Entry(ser)
+            entrybox.grid(row=0, column=1, padx=10, pady=10)
+
+            searchlbl = Label(ser, text="Szukaj właścicieli")
+            searchlbl.grid(row=0, column=0, padx=10, pady=10)
+
+            dropbox = ttk.Combobox(ser, values=['Szukaj po.. ', 'Imie', 'Nazwisko', 'Pesel'])
+            dropbox.current(0)
+            dropbox.grid(row=0, column=2)
+
+            shbutton = Button(ser, text="szukaj", command=lambda: searchnow(entrybox.get(), dropbox.get()))
+            shbutton.grid(row=1, column=0)
+
+        def editrec(id):
+
+            def update(id, new_imie, new_nazwisko, new_pesel):
+                sqlcomand = "UPDATE wlasciciel SET imie = %s, nazwisko = %s, pesel = %s WHERE wlascicielID = %s;"
+                val = (new_imie, new_nazwisko, new_pesel, id)
+                cursor.execute(sqlcomand, val)
+                db.commit()
+
+                ed.destroy()
+                wlasciciele()
+
+            ed = Tk()
+            ed.title("Edytowanie")
+            ed.iconbitmap('d:/gui/car.ico')
+            ed.geometry("1000x800")
+
+            ll = Label(ed, text="Edycja rekordu w tabeli: Właściciele", font=("Arial", 12, 'bold'))
+            ll.grid(row=0, column=1, columnspan=3, sticky=W)
+
+            l1 = Label(ed, text="Imie", font=("Arial", 12)).grid(column=1, row=2, sticky=W, padx=5, pady=10)
+            l2 = Label(ed, text="Nazwisko", font=("Arial", 12)).grid(column=1, row=3, sticky=W, padx=5, pady=10)
+            l3 = Label(ed, text="Pesel", font=("Arial", 12)).grid(column=1, row=4, sticky=W, padx=5, pady=10)
+
+            b1 = Entry(ed)
+            b1.grid(column=2, row=2)
+            b2 = Entry(ed)
+            b2.grid(column=2, row=3)
+            b3 = Entry(ed)
+            b3.grid(column=2, row=4)
+
+
+            addmodel = Button(ed, text="Zatwierdź", padx=20, pady=10,command=lambda: update(id, b1.get(), b2.get(), b3.get()))
+            addmodel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
+            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearmodel)
+            clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
+
+        def deleterec(id):
+            sql = "DELETE FROM wlasciciel WHERE wlascicielID = %s"
+            name = (id,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+            db.commit()
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+            griddy()
+            sprzedawcy()
+
+        def searchnow(par, selected):
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+
+            griddy()
+
+            sql = ''
+            if selected == 'Imie':
+                sql = "SELECT * FROM wlasciciel WHERE imie = %s"
+            if selected == 'Nazwisko':
+                sql = "SELECT * FROM wlasciciel WHERE nazwisko = %s"
+            if selected == 'Pesel':
+                sql = "SELECT * FROM wlasciciel WHERE pesel = %s"
+
+            name = (par,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+
+            if not result:
+                result = "nie znaleziono"
+                l000 = Label(ser, text=result, font=('arial', 10, "bold")).grid(column=0, row=2)
+
+            else:
+                l000 = Label(ser, text="ID", font=('arial', 10, "bold")).grid(column=2, row=2)
+                l111 = Label(ser, text="Imię", font=('arial', 10, "bold")).grid(column=3, row=2)
+                l222 = Label(ser, text="Nazwisko", font=('arial', 10, "bold")).grid(column=4, row=2)
+                l333 = Label(ser, text="Pesel", font=('arial', 10, "bold")).grid(column=5, row=2)
+
+                for index, x in enumerate(result):
+                    position = 0
+                    index += 3
+                    id_ref = x[0]
+                    edit_button = Button(ser, text="Edytuj", command=lambda: editrec(id_ref))
+                    delete_button = Button(ser, text='Usuń', command=lambda: deleterec(id_ref))
+                    edit_button.grid(row=index, column=position)
+                    delete_button.grid(row=index, column=position + 1)
+
+                    for y in x:
+                        dblabel = Label(ser, text=y)
+                        dblabel.grid(row=index, column=position + 2)
+                        position += 1
+
+        ser = Tk()
+        ser.title("Szukaj w właściciele")
+        ser.iconbitmap('d:/gui/car.ico')
+        ser.geometry("1000x800")
+        griddy()
+
     clear_frame()
     root.title("Salon samochodowy menager - Właściciele")
     bck = Button(fr, text="<<", padx=10, pady=5, command=start_screen)
@@ -65,6 +178,8 @@ def wlasciciele():
     addwlasciciel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
     clrr = Button(fr, text="Wyczyść", padx=20, pady=10, command=clearwl)
     clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
+    search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchwl)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
 
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
@@ -84,8 +199,6 @@ def wlasciciele():
             dblabel.grid(row=index + 9, column=position)
             position += 1
 
-
-
 def sprzedawcy():
     def clearsp():
         b1.delete(0, END)
@@ -100,6 +213,119 @@ def sprzedawcy():
 
         db.commit()
         sprzedawcy()
+
+    def searchsp():
+
+        def griddy():
+            entrybox = Entry(ser)
+            entrybox.grid(row=0, column=1, padx=10, pady=10)
+
+            searchlbl = Label(ser, text="Szukaj sprzedawców")
+            searchlbl.grid(row=0, column=0, padx=10, pady=10)
+
+            dropbox = ttk.Combobox(ser, values=['Szukaj po.. ', 'Imie', 'Nazwisko', 'Stanowisko'])
+            dropbox.current(0)
+            dropbox.grid(row=0, column=2)
+
+            shbutton = Button(ser, text="szukaj", command=lambda: searchnow(entrybox.get(), dropbox.get()))
+            shbutton.grid(row=1, column=0)
+
+        def editrec(id):
+
+            def update(id, new_imie, new_nazwisko, new_stanowisko):
+                sqlcomand = "UPDATE sprzedawca SET imie = %s, nazwisko = %s, stanowisko = %s WHERE wlascicielID = %s;"
+                val = (new_imie, new_nazwisko, new_stanowisko, id)
+                cursor.execute(sqlcomand, val)
+                db.commit()
+
+                ed.destroy()
+                sprzedawcy()
+
+            ed = Tk()
+            ed.title("Edytowanie")
+            ed.iconbitmap('d:/gui/car.ico')
+            ed.geometry("1000x800")
+
+            ll = Label(ed, text="Edycja rekordu w tabeli: Sprzedawcy", font=("Arial", 12, 'bold'))
+            ll.grid(row=0, column=1, columnspan=3, sticky=W)
+
+            l1 = Label(ed, text="Imie", font=("Arial", 12)).grid(column=1, row=2, sticky=W, padx=5, pady=10)
+            l2 = Label(ed, text="Nazwisko", font=("Arial", 12)).grid(column=1, row=3, sticky=W, padx=5, pady=10)
+            l3 = Label(ed, text="Stanowisko", font=("Arial", 12)).grid(column=1, row=4, sticky=W, padx=5, pady=10)
+
+            b1 = Entry(ed)
+            b1.grid(column=2, row=2)
+            b2 = Entry(ed)
+            b2.grid(column=2, row=3)
+            b3 = Entry(ed)
+            b3.grid(column=2, row=4)
+
+
+            addmodel = Button(ed, text="Zatwierdź", padx=20, pady=10,command=lambda: update(id, b1.get(), b2.get(), b3.get()))
+            addmodel.grid(column=1, row=6, sticky=W, padx=20, pady=20)
+            clrr = Button(ed, text="Wyczyść", padx=20, pady=10, command=clearmodel)
+            clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
+
+        def deleterec(id):
+            sql = "DELETE FROM sprzedawca WHERE sprzedawcaID = %s"
+            name = (id,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+            db.commit()
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+            griddy()
+            sprzedawcy()
+
+        def searchnow(par, selected):
+
+            for widgets in ser.winfo_children():
+                widgets.destroy()
+
+            griddy()
+
+            sql = ''
+            if selected == 'Imie':
+                sql = "SELECT * FROM sprzedawca WHERE imie = %s"
+            if selected == 'Nazwisko':
+                sql = "SELECT * FROM sprzedawca WHERE nazwisko = %s"
+            if selected == 'Stanowisko':
+                sql = "SELECT * FROM sprzedawca WHERE stanowisko = %s"
+
+            name = (par,)
+            result = cursor.execute(sql, name)
+            result = cursor.fetchall()
+
+            if not result:
+                result = "nie znaleziono"
+                l000 = Label(ser, text=result, font=('arial', 10, "bold")).grid(column=0, row=2)
+
+            else:
+                l000 = Label(ser, text="ID", font=('arial', 10, "bold")).grid(column=2, row=2)
+                l111 = Label(ser, text="Imię", font=('arial', 10, "bold")).grid(column=3, row=2)
+                l222 = Label(ser, text="Nazwisko", font=('arial', 10, "bold")).grid(column=4, row=2)
+                l333 = Label(ser, text="Stanowisko", font=('arial', 10, "bold")).grid(column=5, row=2)
+
+                for index, x in enumerate(result):
+                    position = 0
+                    index += 3
+                    id_ref = x[0]
+                    edit_button = Button(ser, text="Edytuj", command=lambda: editrec(id_ref))
+                    delete_button = Button(ser, text='Usuń', command=lambda: deleterec(id_ref))
+                    edit_button.grid(row=index, column=position)
+                    delete_button.grid(row=index, column=position + 1)
+
+                    for y in x:
+                        dblabel = Label(ser, text=y)
+                        dblabel.grid(row=index, column=position + 2)
+                        position += 1
+
+        ser = Tk()
+        ser.title("Szukaj w sprzedawcy")
+        ser.iconbitmap('d:/gui/car.ico')
+        ser.geometry("1000x800")
+        griddy()
 
     clear_frame()
     root.title("Salon samochodowy menager - Sprzedawcy")
@@ -124,6 +350,8 @@ def sprzedawcy():
     addsprzedawca.grid(column=1, row=6, sticky=W, padx=20, pady=20)
     clrr = Button(fr, text="Wyczyść", padx=20, pady=10, command=clearsp)
     clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
+    search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchsp)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
 
@@ -224,7 +452,7 @@ def modele():
             entrybox = Entry(ser)
             entrybox.grid(row=0, column=1, padx=10, pady=10)
 
-            searchlbl = Label(ser, text="Szukaj samochodów")
+            searchlbl = Label(ser, text="Szukaj sprzedawcow")
             searchlbl.grid(row=0, column=0, padx=10, pady=10)
 
 
