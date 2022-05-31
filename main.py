@@ -57,6 +57,8 @@ def wlasciciele():
 
             shbutton = Button(ser, text="szukaj", command=lambda: searchnow(entrybox.get(), dropbox.get()))
             shbutton.grid(row=1, column=0)
+            dcs = Label(ser,text='Uwaga! Nie możesz usunąć właściciela, jeżeli jest do niego przypisany samochód',font=('arial',9,'italic'))
+            dcs.grid(row=1,column=1,columnspan=4)
 
         def editrec(id):
 
@@ -179,7 +181,7 @@ def wlasciciele():
     clrr = Button(fr, text="Wyczyść", padx=20, pady=10, command=clearwl)
     clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
     search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchwl)
-    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20,columnspan=3)
 
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
@@ -229,6 +231,8 @@ def sprzedawcy():
 
             shbutton = Button(ser, text="szukaj", command=lambda: searchnow(entrybox.get(), dropbox.get()))
             shbutton.grid(row=1, column=0)
+            dcs = Label(ser, text='Uwaga! Nie możesz usunąć sprzedawcy, jeżeli jest do niego przypisany samochód',font=('arial', 9, 'italic'))
+            dcs.grid(row=1, column=1, columnspan=4)
 
         def editrec(id):
 
@@ -351,7 +355,7 @@ def sprzedawcy():
     clrr = Button(fr, text="Wyczyść", padx=20, pady=10, command=clearsp)
     clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
     search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchsp)
-    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20,columnspan=3)
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
 
@@ -512,34 +516,115 @@ def samochody():
         griddy()
 
     clear_frame()
-    root.title("Salon samochodowy menager - Samochody")
-    bck = Button(fr, text="<<", padx=20, pady=5, command=start_screen)
-    bck.grid(row=0, column=0,sticky=W)
-    ll = Label(fr, text="Dodaj do bazy danych (Samochody):", font=("Arial", 12,'bold'),)
-    ll.grid(row=0, column=1,columnspan=3)
 
-    l1 = Label(fr, text="VIN",font=("Arial", 12)).grid(column=1,row=2,sticky=W,padx=5,pady=10)
-    l2 = Label(fr, text="ID modelu", font=("Arial", 12)).grid(column=1, row=3,sticky=W,padx=5,pady=10)
-    l3 = Label(fr, text="ID sprzedawcy", font=("Arial", 12)).grid(column=1, row=4,sticky=W,padx=5,pady=10)
-    l4 = Label(fr, text="ID właściciela", font=("Arial", 12)).grid(column=1, row=5, sticky=W, padx=5, pady=10)
+    def modinfo():
+        clear_frame()
+        add()
+        l00 = Label(fr, text="ID", font=('arial', 10, "bold")).grid(column=0, row=8, sticky=W)
+        l11 = Label(fr, text="VIN", font=('arial', 10, "bold")).grid(column=1, row=8, sticky=W)
+        l22 = Label(fr, text="ID modelu", font=('arial', 10, "bold")).grid(column=2, row=8, sticky=W)
+        l33 = Label(fr, text="Marka", font=('arial', 10, "bold")).grid(column=3, row=8, sticky=W)
+        l44 = Label(fr, text="Nazwa", font=('arial', 10, "bold")).grid(column=4, row=8, sticky=W)
+        l55 = Label(fr, text="Nadwozie", font=('arial', 10, "bold")).grid(column=5, row=8, sticky=W)
+        l66 = Label(fr, text="Rok produkcji", font=('arial', 10, "bold")).grid(column=6, row=8, sticky=W)
 
-    b1 = Entry(fr)
-    b1.grid(column=2, row=2,sticky=W)
-    b2 = Entry(fr)
-    b2.grid(column=2, row=3,sticky=W)
-    b3 = Entry(fr)
-    b3.grid(column=2, row=4,sticky=W)
-    b4 = Entry(fr)
-    b4.grid(column=2, row=5,sticky=W)
+        cursor.execute('SELECT samochod.samochodID, samochod.VIN, model.modelID, model.marka, model.nazwa, model.rok_produkcji, model.nadwozie FROM samochod INNER JOIN model ON model.modelID = samochod.modelID;')
+        result = cursor.fetchall()
 
-    addsamochod = Button(fr, text="Dodaj", padx=5, pady=10, command=addsam)
-    addsamochod.grid(column=1, row=6, sticky=W, padx=5, pady=20)
-    clrr = Button(fr, text="Wyczyść", padx=5, pady=10, command=clearsam)
-    clrr.grid(column=2, row=6, sticky=W, padx=5, pady=20)
-    search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchsam)
-    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
+        for index, x in enumerate(result):
+            position = 0
+            for y in x:
+                dblabel = Label(fr, text=y)
+                dblabel.grid(row=index + 9, column=position, sticky=W)
+                position += 1
 
-    podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
+    def sprzeinfo():
+        clear_frame()
+        add()
+        l00 = Label(fr, text="ID", font=('arial', 10, "bold")).grid(column=0, row=8, sticky=W)
+        l11 = Label(fr, text="VIN", font=('arial', 10, "bold")).grid(column=1, row=8, sticky=W)
+        l22 = Label(fr, text="ID sprzedawcy", font=('arial', 10, "bold")).grid(column=2, row=8, sticky=W)
+        l33 = Label(fr, text="Imie", font=('arial', 10, "bold")).grid(column=3, row=8, sticky=W)
+        l44 = Label(fr, text="Nazwisko", font=('arial', 10, "bold")).grid(column=4, row=8, sticky=W)
+        l55 = Label(fr, text="Stanowisko", font=('arial', 10, "bold")).grid(column=5, row=8, sticky=W)
+
+        cursor.execute('SELECT samochod.samochodID, samochod.VIN,sprzedawca.sprzedawcaID, sprzedawca.imie ,sprzedawca.nazwisko, sprzedawca.stanowisko FROM samochod INNER JOIN sprzedawca ON sprzedawca.sprzedawcaID = samochod.sprzedawcaID;')
+
+        result = cursor.fetchall()
+
+        for index, x in enumerate(result):
+            position = 0
+            for y in x:
+                dblabel = Label(fr, text=y)
+                dblabel.grid(row=index + 9, column=position, sticky=W)
+                position += 1
+
+
+    def wlinfo():
+        clear_frame()
+        add()
+        l00 = Label(fr, text="ID", font=('arial', 10, "bold")).grid(column=0, row=8, sticky=W)
+        l11 = Label(fr, text="VIN", font=('arial', 10, "bold")).grid(column=1, row=8, sticky=W)
+        l22 = Label(fr, text="ID sprzedawcy", font=('arial', 10, "bold")).grid(column=2, row=8, sticky=W)
+        l33 = Label(fr, text="Imie", font=('arial', 10, "bold")).grid(column=3, row=8, sticky=W)
+        l44 = Label(fr, text="Nazwisko", font=('arial', 10, "bold")).grid(column=4, row=8, sticky=W)
+        l55 = Label(fr, text="Pesel", font=('arial', 10, "bold")).grid(column=5, row=8, sticky=W)
+
+        cursor.execute('SELECT samochod.samochodID, samochod.VIN, wlasciciel.wlascicielID, wlasciciel.imie, wlasciciel.nazwisko, wlasciciel.pesel FROM samochod INNER JOIN wlasciciel ON wlasciciel.wlascicielID = samochod.wlascicielID;')
+
+        result = cursor.fetchall()
+
+        for index, x in enumerate(result):
+            position = 0
+            for y in x:
+                dblabel = Label(fr, text=y)
+                dblabel.grid(row=index + 9, column=position, sticky=W)
+                position += 1
+
+    def add():
+
+        root.title("Salon samochodowy menager - Samochody")
+        bck = Button(fr, text="<<", padx=20, pady=5, command=start_screen)
+        bck.grid(row=0, column=0,sticky=W)
+        ll = Label(fr, text="Dodaj do bazy danych (Samochody):", font=("Arial", 12,'bold'),)
+        ll.grid(row=0, column=1,columnspan=3)
+
+        l1 = Label(fr, text="VIN",font=("Arial", 12)).grid(column=1,row=2,sticky=W,padx=5,pady=10)
+        l2 = Label(fr, text="ID modelu", font=("Arial", 12)).grid(column=1, row=3,sticky=W,padx=5,pady=10)
+        l3 = Label(fr, text="ID sprzedawcy", font=("Arial", 12)).grid(column=1, row=4,sticky=W,padx=5,pady=10)
+        l4 = Label(fr, text="ID właściciela", font=("Arial", 12)).grid(column=1, row=5, sticky=W, padx=5, pady=10)
+
+        b1 = Entry(fr)
+        b1.grid(column=2, row=2,sticky=W)
+        b2 = Entry(fr)
+        b2.grid(column=2, row=3,sticky=W)
+        b3 = Entry(fr)
+        b3.grid(column=2, row=4,sticky=W)
+        b4 = Entry(fr)
+        b4.grid(column=2, row=5,sticky=W)
+
+        addsamochod = Button(fr, text="Dodaj", padx=5, pady=10, command=addsam)
+        addsamochod.grid(column=1, row=6, sticky=W, padx=5, pady=20)
+        clrr = Button(fr, text="Wyczyść", padx=5, pady=10, command=clearsam)
+        clrr.grid(column=2, row=6, sticky=W, padx=5, pady=20)
+        search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchsam)
+        search.grid(column=3, row=6, sticky=W, padx=20, pady=20,columnspan=3)
+
+        l4 = Label(fr, text="Wyświetl wszystkie informacje o: ", font=("Arial", 12,'bold')).grid(column=6, row=0, sticky=W, padx=5, pady=10,columnspan=3)
+        modelu = Button(fr, text="Modelu", command=modinfo)
+        modelu.grid(column=6, row=2, sticky=W,columnspan=2)
+        sprzedawcyy = Button(fr, text="Sprzedawcy", command=sprzeinfo)
+        sprzedawcyy.grid(column=6, row=3, sticky=W,columnspan=2)
+        wlascicielu = Button(fr, text="Właścicielu", command=wlinfo)
+        wlascicielu.grid(column=6, row=4, sticky=W, columnspan=2)
+        podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12, 'bold')).grid(column=0, row=7, sticky=W,padx=5, pady=10,columnspan=3)
+
+
+
+
+    add()
+
+
 
     l00 = Label(fr, text="ID", font=('arial', 10, "bold")).grid(column=0, row=8,sticky=W)
     l11 = Label(fr, text="VIN", font=('arial', 10, "bold")).grid(column=1, row=8,sticky=W)
@@ -590,6 +675,8 @@ def modele():
 
             shbutton = Button(ser, text="szukaj",command=lambda:searchnow(entrybox.get(), dropbox.get()))
             shbutton.grid(row=1, column =0)
+            dcs = Label(ser, text='Uwaga! Nie możesz usunąć modelu, jeżeli jest do niego przypisany samochód',font=('arial', 9, 'italic'))
+            dcs.grid(row=1, column=1, columnspan=4)
 
         def editrec(id):
 
@@ -729,7 +816,7 @@ def modele():
     clrr = Button(fr, text="Wyczyść", padx=20, pady=10, command=clearmodel)
     clrr.grid(column=2, row=6, sticky=W, padx=20, pady=20)
     search = Button(fr, text="Szukaj w bazie danych", padx=20, pady=10, command=searchmod)
-    search.grid(column=3, row=6, sticky=W, padx=20, pady=20)
+    search.grid(column=3, row=6, sticky=W, padx=20, pady=20,columnspan=3)
 
     podgladinfo = Label(fr, text="Podgląd bazy danych", font=("Arial", 12,'bold')).grid(column=0, row=7, sticky=W, padx=5, pady=10,columnspan=3)
 
